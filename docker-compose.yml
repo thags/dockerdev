@@ -3,7 +3,7 @@ services:
     build: .
     container_name: dockerdev
     volumes:
-      - ~/repos:/home/developer/repos
+      - C:\repos:/home/developer/repos:cached
     working_dir: /home/developer/repos
     stdin_open: true
     tty: true
