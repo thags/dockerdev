@@ -1,0 +1,10 @@
+services:
+  dockerdev:
+    build: .
+    container_name: dockerdev
+    volumes:
+      - ~/repos:/home/developer/repos
+    working_dir: /home/developer/repos
+    stdin_open: true
+    tty: true
+    command: /bin/bash

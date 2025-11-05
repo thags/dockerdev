@@ -1,0 +1,10 @@
+{
+  "ReturnFormatError": {
+    "prefix": "fre",
+    "body": [
+      "if err != nil{",
+      "    fmt.Errorf(\"${1:Error while}\", err)",
+      "}"
+    ]
+  }
+}
