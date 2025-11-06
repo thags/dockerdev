@@ -1,10 +1,24 @@
 services:
   dockerdev:
-    build: .
+    build: 
+      context: .
+      args:
+        - DEV_PASSWORD=${DEV_PASSWORD}
     container_name: dockerdev
     volumes:
-      - C:\repos:/home/developer/repos:cached
-    working_dir: /home/developer/repos
+      - ${REPOS_PATH}:/home/dev/repos:cached
+    working_dir: /home/dev/repos
     stdin_open: true
     tty: true
-    command: /bin/bash
+    entrypoint: ["/setup.sh"]
+    command: /bin/bash -c "sudo /usr/bin/sshd -D & /bin/bash"
+    ports:
+      - "2222:22"
+    environment:
+      - TERM=xterm-256color
+      - COLORTERM=truecolor
+      - FORCE_COLOR=1
+      - CLICOLOR=1
+      - CLICOLOR_FORCE=1
+      - DEV_PASSWORD=${DEV_PASSWORD}
+      - ASPNETCORE_ENVIRONMENT=Development

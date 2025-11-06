@@ -1,5 +1,7 @@
 FROM archlinux:latest
 
+ARG DEV_PASSWORD=dev
+
 # Disable SSL certificate verification for pacman
 # The corporate overlords, for security purposes, have a self signed certificate on the vpn that breaks things
 # So we have to disable security to get around security...
@@ -21,32 +23,36 @@ RUN pacman -Syu --noconfirm \
     neovim \
     github-cli \
     dotnet-sdk-8.0 \
-    dotnet-sdk
+    dotnet-sdk \
+    openssh
 
-COPY ./config /home/developer/.config
+RUN ssh-keygen -A \
+    && sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
+    && sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config \
+    && sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/' /etc/ssh/sshd_config
 
-RUN useradd -m -u 1000 -s /bin/bash developer \
-    && echo "developer ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+COPY ./config /home/dev/.config
+COPY ./setup.sh /setup.sh
+RUN chmod +x /setup.sh
 
-RUN chown -R developer:developer /home/developer/
+RUN useradd -m -u 1000 -s /bin/bash dev \
+    && echo "dev ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers \
+    && echo "dev:${DEV_PASSWORD}" | chpasswd
 
-## configure tmux
-RUN mv /home/developer/.config/.tmux.conf /home/developer
-RUN git clone https://github.com/tmux-plugins/tpm /home/developer/.tmux/plugins/tpm
+RUN mv /home/dev/.config/.tmux.conf /home/dev
 
-## git config
-### Because the files are actually on the host and in windows this can be a problem
-### https://stackoverflow.com/questions/73485958/how-to-correct-git-reporting-detected-dubious-ownership-in-repository-withou
-RUN git config --global safe.directory '*'
-### Basically, do not track line endings
-RUN git config --global core.autocrlf false
+RUN chown -R dev:dev /home/dev/
 
-WORKDIR /home/developer
-USER developer
+RUN mkdir -p /home/dev/.ssh \
+    && chown dev:dev /home/dev/.ssh \
+    && chmod 700 /home/dev/.ssh
+
+WORKDIR /home/dev
+USER dev
 ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
 ENV DOTNET_ROOT=/usr/share/dotnet
-export ASPNETCORE_ENVIRONMENT=Development
-
 ENV SHELL=/bin/bash
+
+EXPOSE 22
 
 CMD ["/bin/bash"]

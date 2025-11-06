@@ -12,9 +12,53 @@ I would like to create a way to automatically add those into the container thoug
 
 ## Steps to setup:
 
-1. `docker compose up -d`
-2. `docker exec -it dockerdev tmux`
-You could use any command other than tmux too. I like my entry to be at tmux though.
+1. Set variables to your desired in the .env file
+2. `docker compose up -d`
+
+Then connect with either ssh, or through docker exec.
+I recommend ssh as docker exec has issues with displaying colors.
+
+- `ssh -p 2222 dev@localhost`
+    - account name is `dev`
+    - password is configured through the .env file
+- `docker exec -it dockerdev tmux`
+
+That is it.
+You now have an account named `dev` with the password configured in the .env file.
+
+## Automated setup
+
+### Dockerfile
+
+Pacman handles the installation of all the pre-installed applications and requirements.
+SSH is configured.
+`dev` account created.
+`dev` account given permission 
+
+### setup.sh
+
+This file is copied over during the build and is automatically run.
+Mostly for setup that needs to happen at runtime. 
+Some of the items probably could be moved to the Dockerfile, but it works either way.
+I kind of like having the .sh file as it is more portable, it could be ran on any linux environment to get it configured the same.
+I may actually move many of the items from the Dockerfile to the setup.sh.
+
+Use docker just as an easy way to get a linux container started then use setup.sh to configure it.
+That way the same config could be applied even outside of docker.
+
+
+This only runs once.
+It creates the file: `/home/dev/.dockerdev_setup_complete`
+If that file exists then it will not run.
+
+### SSH
+
+If you have recreated the container since the last ssh connection you may need to delete the ssh keys on the host before it will allow you to connect.
+On the host run:
+`ssh-keygen -R [localhost]:2222`
+
+SSH is installed and turned on by default.
+The password will be what you set in the .env file for `DEV_PASSWORD` with account name `dev`.
 
 ### Neovim
 
@@ -24,14 +68,11 @@ Keep in mind this has my custom stuff, you can customize your own.
 
 ### Tmux
 
-This does not work yet.
+This is partially working. 
+It does configure the keybindings, but the theme is not loading.
 
 The idea is:
 Pretty much a straight copy from: https://dreamsofcode.io/blog/zen-tmux-configuration
-Should already come configured.
-
-After starting tmux press prefix (control + b) and I
-This should install everything needed and make tmux look nice.
 
 ### dotnet 8 and 9 sdk
 
@@ -40,9 +81,16 @@ Both are installed.
 9 is needed for the roslyn and rzls LSPs in nvim
 
 
+### git
 
-### others
+Since files are being shared from the host, which could be windows to the container some git configuration was needed.
+We set everything to a safe directory for git, and turn autocrlf to input.
 
-These are installed but just default config:
-- git
-- github cli
+
+
+## Future ideas
+
+- Pull from my personal dotfiles repo and use stow to apply it, just like I manually would.
+    - requires making my dotfiles repo public.
+- Add optional environment variable for github ssh key
+- 
