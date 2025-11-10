@@ -24,12 +24,19 @@ RUN pacman -Syu --noconfirm \
     github-cli \
     dotnet-sdk-8.0 \
     dotnet-sdk \
-    openssh
+    openssh \
+    zoxide \
+    ncurses
 
 RUN ssh-keygen -A \
     && sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
     && sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config \
     && sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/' /etc/ssh/sshd_config
+
+RUN mkdir -p /home/dev/.tmux/plugins/catppuccin/tmux \
+    && git clone https://github.com/catppuccin/tmux /home/dev/.tmux/plugins/catppuccin/tmux
+
+RUN chmod +x /home/dev/.tmux/plugins/catppuccin/tmux/catppuccin.tmux
 
 COPY ./config /home/dev/.config
 COPY ./setup.sh /setup.sh

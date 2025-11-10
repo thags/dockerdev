@@ -38,18 +38,12 @@ SSH is configured.
 ### setup.sh
 
 This file is copied over during the build and is automatically run.
-Mostly for setup that needs to happen at runtime. 
-Some of the items probably could be moved to the Dockerfile, but it works either way.
-I kind of like having the .sh file as it is more portable, it could be ran on any linux environment to get it configured the same.
-I may actually move many of the items from the Dockerfile to the setup.sh.
-
-Use docker just as an easy way to get a linux container started then use setup.sh to configure it.
-That way the same config could be applied even outside of docker.
-
 
 This only runs once.
 It creates the file: `/home/dev/.dockerdev_setup_complete`
 If that file exists then it will not run.
+
+Right now it just sets some git config defaults and builds the .bashrc file.
 
 ### SSH
 
@@ -68,11 +62,11 @@ Keep in mind this has my custom stuff, you can customize your own.
 
 ### Tmux
 
-This is partially working. 
-It does configure the keybindings, but the theme is not loading.
+Minimal defaults with slightly better styling.
 
-The idea is:
-Pretty much a straight copy from: https://dreamsofcode.io/blog/zen-tmux-configuration
+### Zoxide
+
+Just a plain zoxide setup with cd replacement.
 
 ### dotnet 8 and 9 sdk
 
@@ -80,17 +74,10 @@ Both are installed.
 8 is needed for projects at work.
 9 is needed for the roslyn and rzls LSPs in nvim
 
-
 ### git
 
 Since files are being shared from the host, which could be windows to the container some git configuration was needed.
 We set everything to a safe directory for git, and turn autocrlf to input.
 
-
-
 ## Future ideas
-
-- Pull from my personal dotfiles repo and use stow to apply it, just like I manually would.
-    - requires making my dotfiles repo public.
 - Add optional environment variable for github ssh key
-- 
